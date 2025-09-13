@@ -39,18 +39,18 @@ export async function POST(req) {
     const safeName = typeof name === 'string' ? name.slice(0, 50) : 'Anonymous'
     const safeHandle = typeof handle === 'string' ? handle.slice(0, 20) : '@user'
 
-    // Calculate dynamic height based on text content
-    const baseHeight = 180  // Base for header + avatar + timestamp + padding
-    const lineBreaks = safeText.split('\n').length  // Count actual line breaks
-    const charsPerLine = 75  // Characters that fit in 1000px width
+
+    const baseHeight = 180 
+    const lineBreaks = safeText.split('\n').length  
+    const charsPerLine = 75 
     const textWithoutBreaks = safeText.replace(/\n/g, '')
     const wrappedLines = Math.max(1, Math.ceil(textWithoutBreaks.length / charsPerLine))
     
-    // Use the maximum of line breaks vs wrapped lines
+
     const estimatedLines = Math.max(lineBreaks, wrappedLines)
     
-    // Calculate height based on consistent spacing
-    const lineHeight = 44  // Consistent spacing that works for all lengths
+
+    const lineHeight = 44  
     const baseBuffer = 22
     const extraBuffer = Math.max(0, (estimatedLines - 4) * 1)
     
