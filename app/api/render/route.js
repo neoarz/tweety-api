@@ -42,11 +42,11 @@ export async function POST(req) {
     return new ImageResponse(
       (
         <div style={{
-          width: 1000,
+          width: '100%',
           background: '#ffffff',
           border: '2px solid #e5e7eb',
           borderRadius: 24,
-          padding: 32,
+          padding: 24,
           boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
           display: 'flex',
           flexDirection: 'column',
@@ -56,12 +56,12 @@ export async function POST(req) {
               display: 'flex',
               alignItems: 'flex-start',
               justifyContent: 'space-between',
-              marginBottom: 24
+              marginBottom: 16
             }}>
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: 24
+                gap: 16
               }}>
                 <img 
                   src={avatar} 
@@ -118,7 +118,7 @@ export async function POST(req) {
             </div>
 
             <div style={{
-              marginBottom: 24,
+              marginBottom: 16,
               display: 'flex'
             }}>
               <div style={{
