@@ -51,7 +51,7 @@ export async function POST(req) {
     
 
     const lineHeight = 44  
-    const baseBuffer = 22
+    const baseBuffer = 24
     const extraBuffer = Math.max(0, (estimatedLines - 4) * 1)
     
     const dynamicHeight = baseHeight + (estimatedLines * lineHeight) + baseBuffer + extraBuffer
