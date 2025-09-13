@@ -47,18 +47,18 @@ export async function POST(req) {
     let totalLines = 0
     
     if (safeText.trim() === '') {
-      // No text content, set to 0 lines
+    
       totalLines = 0
     } else {
       const lines = safeText.split('\n')
       
-      // Calculate wrapped lines for each line separately
+      
       for (const line of lines) {
         if (line.trim() === '') {
-          totalLines += 1 // Empty line still takes space
+          totalLines += 1 
         } else {
-          // More accurate character counting - account for font width differences
-          const charsPerLine = 72 // Slightly more conservative estimate
+          
+          const charsPerLine = 72 
           const lineWraps = Math.max(1, Math.ceil(line.length / charsPerLine))
           totalLines += lineWraps
         }
@@ -67,13 +67,12 @@ export async function POST(req) {
     
     const estimatedLines = totalLines
     
-    const lineHeight = 39  
+    const lineHeight = 40  
     const baseBuffer = 32 
  
     const extraBuffer = Math.max(0, (estimatedLines - 3) * 8)
     
-    // Add extra height for image if present
-    const imageHeight = image ? 256 + 16 : 0 // 256px image + 16px margin
+    const imageHeight = image ? 256 + 16 : 0 
     
     const dynamicHeight = baseHeight + (estimatedLines * lineHeight) + baseBuffer + extraBuffer + imageHeight
     const finalHeight = height || dynamicHeight
