@@ -41,18 +41,29 @@ export async function POST(req) {
 
 
     const baseHeight = 180 
-    const lineBreaks = safeText.split('\n').length  
-    const charsPerLine = 75 
-    const textWithoutBreaks = safeText.replace(/\n/g, '')
-    const wrappedLines = Math.max(1, Math.ceil(textWithoutBreaks.length / charsPerLine))
     
-
-    const estimatedLines = Math.max(lineBreaks, wrappedLines)
+    // Better text wrapping calculation
+    const lines = safeText.split('\n')
+    let totalLines = 0
     
-
+    // Calculate wrapped lines for each line separately
+    for (const line of lines) {
+      if (line.trim() === '') {
+        totalLines += 1 // Empty line still takes space
+      } else {
+        // More accurate character counting - account for font width differences
+        const charsPerLine = 72 // Slightly more conservative estimate
+        const lineWraps = Math.max(1, Math.ceil(line.length / charsPerLine))
+        totalLines += lineWraps
+      }
+    }
+    
+    const estimatedLines = totalLines
+    
     const lineHeight = 44  
-    const baseBuffer = 24
-    const extraBuffer = Math.max(0, (estimatedLines - 4) * 1)
+    const baseBuffer = 28 // Increased buffer for timestamp
+    // Add more space for longer messages to prevent cutoff
+    const extraBuffer = Math.max(0, (estimatedLines - 3) * 8)
     
     const dynamicHeight = baseHeight + (estimatedLines * lineHeight) + baseBuffer + extraBuffer
     const finalHeight = height || dynamicHeight
