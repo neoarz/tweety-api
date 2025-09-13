@@ -60,9 +60,9 @@ export async function POST(req) {
     
     const estimatedLines = totalLines
     
-    const lineHeight = 44  
-    const baseBuffer = 28 // Increased buffer for timestamp
-    // Add more space for longer messages to prevent cutoff
+    const lineHeight = 43  
+    const baseBuffer = 28 
+ 
     const extraBuffer = Math.max(0, (estimatedLines - 3) * 8)
     
     const dynamicHeight = baseHeight + (estimatedLines * lineHeight) + baseBuffer + extraBuffer
