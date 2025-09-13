@@ -43,7 +43,7 @@ export async function POST(req) {
     const isGif = image && typeof image === 'string' && image.toLowerCase().endsWith('.gif')
     
     // Get image dimensions to calculate proper height
-    let imageDisplayHeight = 256 // default height
+    let imageDisplayHeight = 400 // increased default height for more space
     let imageAspectRatio = null
     
     if (image) {
@@ -81,9 +81,9 @@ export async function POST(req) {
             const maxDisplayWidth = 952 // Available width in the tweet (1000 - 48px padding)
             imageDisplayHeight = Math.round(maxDisplayWidth / imageAspectRatio)
             // Limit maximum height to prevent extremely tall images
-            imageDisplayHeight = Math.min(imageDisplayHeight, 600)
+            imageDisplayHeight = Math.min(imageDisplayHeight, 800) // increased max height
             // Ensure minimum height
-            imageDisplayHeight = Math.max(imageDisplayHeight, 150)
+            imageDisplayHeight = Math.max(imageDisplayHeight, 200) // increased min height
           }
         }
       } catch (error) {
@@ -123,10 +123,9 @@ export async function POST(req) {
  
     const extraBuffer = Math.max(0, (estimatedLines - 3) * 8)
     
-    const imageHeight = image ? imageDisplayHeight + 16 : 0 
-    const gifLinkHeight = isGif ? 40 : 0
+    const imageHeight = image ? imageDisplayHeight + 24 : 0 // increased padding for images
     
-    const dynamicHeight = baseHeight + (estimatedLines * lineHeight) + baseBuffer + extraBuffer + imageHeight + gifLinkHeight
+    const dynamicHeight = baseHeight + (estimatedLines * lineHeight) + baseBuffer + extraBuffer + imageHeight
     const finalHeight = height || dynamicHeight
 
     return new ImageResponse(
@@ -239,52 +238,18 @@ export async function POST(req) {
                 display: 'flex',
                 position: 'relative'
               }}>
-                <img 
-                  src={image} 
-                  style={{
-                    width: '100%',
-                    height: imageDisplayHeight,
-                    objectFit: 'contain'
-                  }} 
-                />
-                {isGif && (
-                  <div style={{
-                    position: 'absolute',
-                    top: 12,
-                    right: 12,
-                    background: 'rgba(0, 0, 0, 0.8)',
-                    color: 'white',
-                    padding: '6px 12px',
-                    borderRadius: 6,
-                    fontSize: 16,
-                    fontWeight: 600,
-                    display: 'flex'
-                  }}>
-                    GIF
-                  </div>
-                )}
+                  <img 
+                    src={image} 
+                    style={{
+                      width: '100%',
+                      height: imageDisplayHeight,
+                      objectFit: 'contain'
+                    }} 
+                  />
               </div>
             </div>
           )}
 
-          {isGif && (
-            <div style={{
-              marginBottom: 16,
-              display: 'flex'
-            }}>
-              <div style={{
-                color: '#3b82f6',
-                fontSize: 20,
-                textDecoration: 'underline',
-                fontWeight: 500,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap'
-              }}>
-                {image}
-              </div>
-            </div>
-          )}
 
           {/* Timestamp */}
           <div style={{
