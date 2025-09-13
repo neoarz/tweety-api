@@ -45,7 +45,7 @@ export async function POST(req) {
           width: '100%',
           background: '#ffffff',
           border: '2px solid #e5e7eb',
-          borderRadius: 6,
+          borderRadius: 0,
           padding: 24,
           boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
           display: 'flex',
