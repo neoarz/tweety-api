@@ -44,18 +44,24 @@ export async function POST(req) {
     const baseHeight = 180 
     
     // Better text wrapping calculation
-    const lines = safeText.split('\n')
     let totalLines = 0
     
-    // Calculate wrapped lines for each line separately
-    for (const line of lines) {
-      if (line.trim() === '') {
-        totalLines += 1 // Empty line still takes space
-      } else {
-        // More accurate character counting - account for font width differences
-        const charsPerLine = 72 // Slightly more conservative estimate
-        const lineWraps = Math.max(1, Math.ceil(line.length / charsPerLine))
-        totalLines += lineWraps
+    if (safeText.trim() === '') {
+      // No text content, set to 0 lines
+      totalLines = 0
+    } else {
+      const lines = safeText.split('\n')
+      
+      // Calculate wrapped lines for each line separately
+      for (const line of lines) {
+        if (line.trim() === '') {
+          totalLines += 1 // Empty line still takes space
+        } else {
+          // More accurate character counting - account for font width differences
+          const charsPerLine = 72 // Slightly more conservative estimate
+          const lineWraps = Math.max(1, Math.ceil(line.length / charsPerLine))
+          totalLines += lineWraps
+        }
       }
     }
     
@@ -152,19 +158,21 @@ export async function POST(req) {
           </div>
 
           {/* Content */}
-          <div style={{
-            marginBottom: 16,
-            display: 'flex'
-          }}>
+          {safeText.trim() && (
             <div style={{
-              color: '#111827', 
-              fontSize: 28, 
-              lineHeight: 1.4,
-              whiteSpace: 'pre-wrap'
+              marginBottom: 16,
+              display: 'flex'
             }}>
-              {safeText}
+              <div style={{
+                color: '#111827', 
+                fontSize: 28, 
+                lineHeight: 1.4,
+                whiteSpace: 'pre-wrap'
+              }}>
+                {safeText}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Image section */}
           {image && (
