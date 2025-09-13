@@ -26,7 +26,8 @@ export async function POST(req) {
       height = null,
       format = 'png',
       verified = false,
-      image = null
+      image = null,
+      dark = false
     } = body
     if (width > 2000 || (height && height > 2000)) {
       return new Response('Image dimensions too large', { status: 400 })
@@ -80,9 +81,8 @@ export async function POST(req) {
           if (imageAspectRatio) {
             const maxDisplayWidth = 952 // Available width in the tweet (1000 - 48px padding)
             imageDisplayHeight = Math.round(maxDisplayWidth / imageAspectRatio)
-            // Limit maximum height to prevent extremely tall images
+
             imageDisplayHeight = Math.min(imageDisplayHeight, 800) // increased max height
-            // Ensure minimum height
             imageDisplayHeight = Math.max(imageDisplayHeight, 200) // increased min height
           }
         }
@@ -128,15 +128,19 @@ export async function POST(req) {
     const dynamicHeight = baseHeight + (estimatedLines * lineHeight) + baseBuffer + extraBuffer + imageHeight
     const finalHeight = height || dynamicHeight
 
+    // Theme colors - Updated to new Twitter dark theme
+    const bgColor = dark ? '#000000' : '#ffffff'
+    const textColor = dark ? '#e7e9ea' : '#0f1419'
+    const subTextColor = dark ? '#71767b' : '#536471'
+    const avatarBorder = dark ? '#2f3336' : '#cfd9de'
+    const twitterBlue = '#1d9bf0'
+
     return new ImageResponse(
       (
         <div style={{
           width: '100%',
-          background: '#ffffff',
-          border: '2px solid #e5e7eb',
-          borderRadius: 0,
+          background: bgColor,
           padding: 24,
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
           display: 'flex',
           flexDirection: 'column',
           fontFamily: 'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial'
@@ -159,8 +163,8 @@ export async function POST(req) {
                 height={96} 
                 style={{
                   borderRadius: 9999, 
-                  objectFit: 'cover', 
-                  border: '2px solid #e5e7eb'
+                  objectFit: 'cover',
+                  border: `3px solid ${avatarBorder}`
                 }} 
               />
               <div style={{
@@ -173,32 +177,32 @@ export async function POST(req) {
                   alignItems: 'center',
                   gap: 8
                 }}>
-                  <div style={{
-                    fontWeight: 700, 
-                    color: '#111827', 
-                    fontSize: 32,
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis'
-                  }}>
-                    {safeName}
-                  </div>
+                    <div style={{
+                      fontWeight: 700, 
+                      color: textColor, 
+                      fontSize: 32,
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis'
+                    }}>
+                      {safeName}
+                    </div>
                   {verified && (
                     <svg width="32" height="32" viewBox="0 0 24 24" fill="#3b82f6">
                       <path d="M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.71-3.998-3.818-3.998-.47 0-.92.084-1.336.25C14.818 2.415 13.51 1.5 12 1.5s-2.816.917-3.437 2.25c-.415-.165-.866-.25-1.336-.25-2.11 0-3.818 1.79-3.818 4 0 .494.083.964.237 1.4-1.272.65-2.147 2.018-2.147 3.6 0 1.495.782 2.798 1.942 3.486-.02.17-.032.34-.032.514 0 2.21 1.708 4 3.818 4 .47 0 .92-.086 1.335-.25.62 1.334 1.926 2.25 3.437 2.25 1.512 0 2.818-.916 3.437-2.25.415.163.865.248 1.336.248 2.11 0 3.818-1.79 3.818-4 0-.174-.012-.344-.033-.513 1.158-.687 1.943-1.99 1.943-3.484zm-6.616-3.334l-4.334 6.5c-.145.217-.382.334-.625.334-.143 0-.288-.04-.416-.126l-.115-.094-2.415-2.415c-.293-.293-.293-.768 0-1.06s.768-.294 1.06 0l1.77 1.767 3.825-5.74c.23-.345.696-.436 1.04-.207.346.23.44.696.21 1.04z" />
                     </svg>
                   )}
                 </div>
-                <div style={{
-                  color: '#6b7280', 
-                  fontSize: 28
-                }}>
-                  {safeHandle}
-                </div>
+                  <div style={{
+                    color: subTextColor, 
+                    fontSize: 28
+                  }}>
+                    {safeHandle}
+                  </div>
               </div>
             </div>
             <div style={{
-              color: '#3b82f6',
+              color: twitterBlue,
               display: 'flex'
             }}>
               <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor">
@@ -214,7 +218,7 @@ export async function POST(req) {
               display: 'flex'
             }}>
               <div style={{
-                color: '#111827', 
+                color: textColor, 
                 fontSize: 28, 
                 lineHeight: 1.4,
                 whiteSpace: 'pre-wrap'
@@ -233,7 +237,6 @@ export async function POST(req) {
               <div style={{
                 borderRadius: 12,
                 overflow: 'hidden',
-                border: '2px solid #e5e7eb',
                 width: '100%',
                 display: 'flex',
                 position: 'relative'
@@ -253,7 +256,7 @@ export async function POST(req) {
 
           {/* Timestamp */}
           <div style={{
-            color: '#6b7280', 
+            color: subTextColor, 
             fontSize: 24,
             display: 'flex',
             marginBottom: 0
@@ -290,7 +293,8 @@ export async function GET() {
       height: 'number (max 2000)',
       format: 'string (png or svg)',
       verified: 'boolean (show verified badge)',
-      image: 'string (image URL, optional - GIFs will show preview + link)'
+      image: 'string (image URL, optional - GIFs will show preview + link)',
+      dark: 'boolean (enable dark theme)'
     }
   }), {
     status: 200,
