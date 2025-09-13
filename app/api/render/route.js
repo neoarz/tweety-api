@@ -51,7 +51,7 @@ export async function POST(req) {
     
     // Calculate height based on consistent spacing
     const lineHeight = 44  // Consistent spacing that works for all lengths
-    const baseBuffer = 20
+    const baseBuffer = 22
     const extraBuffer = Math.max(0, (estimatedLines - 4) * 1)
     
     const dynamicHeight = baseHeight + (estimatedLines * lineHeight) + baseBuffer + extraBuffer
