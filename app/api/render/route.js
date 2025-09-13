@@ -22,12 +22,12 @@ export async function POST(req) {
       avatar = 'https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=200',
       text = "Just finished reading an amazing book on web development! 📚",
       timestamp = defaultTimestamp,
-      width = 1200,
-      height = 800,
+      width = 1000,
+      height = null,
       format = 'png',
       verified = false
     } = body
-    if (width > 2000 || height > 2000) {
+    if (width > 2000 || (height && height > 2000)) {
       return new Response('Image dimensions too large', { status: 400 })
     }
     
@@ -38,6 +38,24 @@ export async function POST(req) {
     const safeText = text.slice(0, 800)
     const safeName = typeof name === 'string' ? name.slice(0, 50) : 'Anonymous'
     const safeHandle = typeof handle === 'string' ? handle.slice(0, 20) : '@user'
+
+    // Calculate dynamic height based on text content
+    const baseHeight = 180  // Base for header + avatar + timestamp + padding
+    const lineBreaks = safeText.split('\n').length  // Count actual line breaks
+    const charsPerLine = 75  // Characters that fit in 1000px width
+    const textWithoutBreaks = safeText.replace(/\n/g, '')
+    const wrappedLines = Math.max(1, Math.ceil(textWithoutBreaks.length / charsPerLine))
+    
+    // Use the maximum of line breaks vs wrapped lines
+    const estimatedLines = Math.max(lineBreaks, wrappedLines)
+    
+    // Calculate height based on consistent spacing
+    const lineHeight = 45  // Consistent spacing that works for all lengths
+    const baseBuffer = 18
+    const extraBuffer = Math.max(0, (estimatedLines - 4) * 1)
+    
+    const dynamicHeight = baseHeight + (estimatedLines * lineHeight) + baseBuffer + extraBuffer
+    const finalHeight = height || dynamicHeight
 
     return new ImageResponse(
       (
@@ -142,8 +160,8 @@ export async function POST(req) {
         </div>
       ),
       {
-        width: width || 1200,
-        height: height || 800,
+        width: width || 1000,
+        height: finalHeight,
         headers: {
           'Cache-Control': 'public, max-age=3600, s-maxage=86400',
         }
