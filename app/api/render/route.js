@@ -39,6 +39,57 @@ export async function POST(req) {
     const safeText = text.slice(0, 800)
     const safeName = typeof name === 'string' ? name.slice(0, 50) : 'Anonymous'
     const safeHandle = typeof handle === 'string' ? handle.slice(0, 20) : '@user'
+    
+    const isGif = image && typeof image === 'string' && image.toLowerCase().endsWith('.gif')
+    
+    // Get image dimensions to calculate proper height
+    let imageDisplayHeight = 256 // default height
+    let imageAspectRatio = null
+    
+    if (image) {
+      try {
+        // Fetch image to get dimensions
+        const imageResponse = await fetch(image)
+        if (imageResponse.ok) {
+          const imageBuffer = await imageResponse.arrayBuffer()
+          const uint8Array = new Uint8Array(imageBuffer)
+          
+          // Simple dimension detection for common formats
+          if (uint8Array[0] === 0xFF && uint8Array[1] === 0xD8) { // JPEG
+            let i = 2
+            while (i < uint8Array.length) {
+              if (uint8Array[i] === 0xFF && (uint8Array[i + 1] === 0xC0 || uint8Array[i + 1] === 0xC2)) {
+                const height = (uint8Array[i + 5] << 8) | uint8Array[i + 6]
+                const width = (uint8Array[i + 7] << 8) | uint8Array[i + 8]
+                imageAspectRatio = width / height
+                break
+              }
+              i++
+            }
+          } else if (uint8Array[0] === 0x89 && uint8Array[1] === 0x50 && uint8Array[2] === 0x4E && uint8Array[3] === 0x47) { // PNG
+            const width = (uint8Array[16] << 24) | (uint8Array[17] << 16) | (uint8Array[18] << 8) | uint8Array[19]
+            const height = (uint8Array[20] << 24) | (uint8Array[21] << 16) | (uint8Array[22] << 8) | uint8Array[23]
+            imageAspectRatio = width / height
+          } else if (uint8Array[0] === 0x47 && uint8Array[1] === 0x49 && uint8Array[2] === 0x46) { // GIF
+            const width = uint8Array[6] | (uint8Array[7] << 8)
+            const height = uint8Array[8] | (uint8Array[9] << 8)
+            imageAspectRatio = width / height
+          }
+          
+          // Calculate display height based on aspect ratio
+          if (imageAspectRatio) {
+            const maxDisplayWidth = 952 // Available width in the tweet (1000 - 48px padding)
+            imageDisplayHeight = Math.round(maxDisplayWidth / imageAspectRatio)
+            // Limit maximum height to prevent extremely tall images
+            imageDisplayHeight = Math.min(imageDisplayHeight, 600)
+            // Ensure minimum height
+            imageDisplayHeight = Math.max(imageDisplayHeight, 150)
+          }
+        }
+      } catch (error) {
+        console.log('Could not fetch image dimensions, using default height')
+      }
+    }
 
 
     const baseHeight = 180 
@@ -72,9 +123,10 @@ export async function POST(req) {
  
     const extraBuffer = Math.max(0, (estimatedLines - 3) * 8)
     
-    const imageHeight = image ? 256 + 16 : 0 
+    const imageHeight = image ? imageDisplayHeight + 16 : 0 
+    const gifLinkHeight = isGif ? 40 : 0
     
-    const dynamicHeight = baseHeight + (estimatedLines * lineHeight) + baseBuffer + extraBuffer + imageHeight
+    const dynamicHeight = baseHeight + (estimatedLines * lineHeight) + baseBuffer + extraBuffer + imageHeight + gifLinkHeight
     const finalHeight = height || dynamicHeight
 
     return new ImageResponse(
@@ -184,16 +236,52 @@ export async function POST(req) {
                 overflow: 'hidden',
                 border: '2px solid #e5e7eb',
                 width: '100%',
-                display: 'flex'
+                display: 'flex',
+                position: 'relative'
               }}>
                 <img 
                   src={image} 
                   style={{
                     width: '100%',
-                    height: 256,
-                    objectFit: 'cover'
+                    height: imageDisplayHeight,
+                    objectFit: 'contain'
                   }} 
                 />
+                {isGif && (
+                  <div style={{
+                    position: 'absolute',
+                    top: 12,
+                    right: 12,
+                    background: 'rgba(0, 0, 0, 0.8)',
+                    color: 'white',
+                    padding: '6px 12px',
+                    borderRadius: 6,
+                    fontSize: 16,
+                    fontWeight: 600,
+                    display: 'flex'
+                  }}>
+                    GIF
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {isGif && (
+            <div style={{
+              marginBottom: 16,
+              display: 'flex'
+            }}>
+              <div style={{
+                color: '#3b82f6',
+                fontSize: 20,
+                textDecoration: 'underline',
+                fontWeight: 500,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
+              }}>
+                {image}
               </div>
             </div>
           )}
@@ -237,7 +325,7 @@ export async function GET() {
       height: 'number (max 2000)',
       format: 'string (png or svg)',
       verified: 'boolean (show verified badge)',
-      image: 'string (image URL, optional)'
+      image: 'string (image URL, optional - GIFs will show preview + link)'
     }
   }), {
     status: 200,
