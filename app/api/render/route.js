@@ -67,7 +67,7 @@ export async function POST(req) {
     
     const estimatedLines = totalLines
     
-    const lineHeight = 38  
+    const lineHeight = 39  
     const baseBuffer = 32 
  
     const extraBuffer = Math.max(0, (estimatedLines - 3) * 8)
