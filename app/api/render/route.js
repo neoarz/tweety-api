@@ -134,7 +134,8 @@ export async function POST(req) {
             <div style={{
               color: '#6b7280', 
               fontSize: 24,
-              display: 'flex'
+              display: 'flex',
+              marginBottom: 0
             }}>
               {timestamp}
             </div>
