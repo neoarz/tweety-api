@@ -5,7 +5,7 @@ Generate tweet-like images from JSON data.
 ## Setup
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/neoarz/tweety-api.git
 cd tweety
 npm install
 npm run dev
@@ -21,7 +21,7 @@ curl -X POST http://localhost:3000/api/render \
     "handle": "@nnneoarz",
     "text": "Hello world!",
     "verified": true,
-    "avatar": "https://your-image-url.com/profile.jpg"
+    "avatar": "https://pbs.twimg.com/profile_images/1861654281922715648/gjj33VdC_400x400.jpg"
   }' --output tweet.png
 ```
 
