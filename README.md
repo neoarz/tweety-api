@@ -25,4 +25,4 @@ curl -X POST http://localhost:3000/api/render \
   }' --output tweet.png
 ```
 
-The API will return a PNG image of the tweet. You can customize the profile image by providing an `avatar` URL.
+The API will return a PNG image of the tweet. You can customize the profile image by providing an `avatar` URL
